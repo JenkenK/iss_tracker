@@ -1,7 +1,6 @@
 <template>
   <main>
     <h1>ISS Tracker</h1>
-    <!-- <div>{{ this.issUnixTimeStamp }}</div> -->
     <div>Time: {{ this.issTimeStamp }}</div>
     <div>Date: {{ this.issDate }}</div>
   </main>
