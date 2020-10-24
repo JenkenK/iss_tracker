@@ -1,30 +1,74 @@
 <template>
-  <section>
-    <div id="app">
-      <mapbox
-        access-token="your access token"
-        :map-options="{
-          style: 'mapbox://styles/mapbox/light-v9',
-          center: [-96, 37.8],
-          zoom: 3,
-        }"
+  <section id="map-window">
+    <MglMap
+      :accessToken="accessToken"
+      :mapStyle.sync="mapStyle"
+      @load="onMapLoaded"
+      :center="coordinates"
+      :zoom="3"
+    >
+      <MglMarker
+        v-if="this.issPosition"
+        :coordinates="this.coordinates"
+        color="blue"
       />
-    </div>
+      <MglNavigationControl position="top-right" />
+      <MglGeolocateControl position="top-right" />
+      <MglScaleControl position="bottom-right" />
+    </MglMap>
   </section>
 </template>
 
 <script>
-import Mapbox from "mapbox-gl-vue";
+import Mapbox from "mapbox-gl";
+import {
+  MglMap,
+  MglNavigationControl,
+  MglGeolocateControl,
+  MglScaleControl,
+  MglMarker,
+} from "vue-mapbox";
 
 export default {
-  components: { Mapbox },
+  name: "Map",
+  components: {
+    MglMap,
+    MglNavigationControl,
+    MglGeolocateControl,
+    MglScaleControl,
+    MglMarker,
+  },
+  data() {
+    return {
+      accessToken:
+        "pk.eyJ1IjoiamVua2VuayIsImEiOiJja2dtY3V6c3cxMXVqMzBuYW5pYzU3NjRiIn0.7_xgcQPBezjhQB1vsFn70w", // your access token. Needed if you using Mapbox maps
+      mapStyle: "mapbox://styles/mapbox/streets-v11", // your map style
+      coordinates: [0, 0],
+    };
+  },
+  created() {
+    this.mapbox = Mapbox;
+    this.map = null;
+  },
+  methods: {
+    onMapLoaded(event) {
+      this.map = event.map;
+    },
+  },
+  watch: {
+    issPosition: function (val) {
+      this.coordinates = [val.longitude, val.latitude];
+    },
+  },
+  props: ["issPosition"],
 };
 </script>
 
 <style scoped>
-#map {
-  width: 100%;
-  height: 500px;
+#map-window {
+  height: 100vh;
+  width: 100vw;
+  margin-left: auto;
+  margin-right: auto;
 }
-</style>
 </style>

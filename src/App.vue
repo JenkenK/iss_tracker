@@ -1,23 +1,49 @@
 <template>
   <main>
-    <h1>ISS Tracker</h1>
-    <div>Time: {{ this.issTimeStamp }}</div>
-    <div>Date: {{ this.issDate }}</div>
+    <div id="iss-info">
+      <h1>ISS Tracker</h1>
+      <div>Time: {{ this.issTimeStamp }}</div>
+      <div>Date: {{ this.issDate }}</div>
+      <br />
+      <div>
+        Longitude:<span v-if="this.issPosition">
+          {{ this.issPosition.longitude }}</span
+        >
+      </div>
+      <div>
+        Latitude:<span v-if="this.issPosition">
+          {{ this.issPosition.latitude }}</span
+        >
+      </div>
+    </div>
+    <track-iss-map v-bind:issPosition="issPosition"></track-iss-map>
   </main>
 </template>
 
 <script>
+import TrackISSMap from "./components/TrackISSMap.vue";
+
 export default {
+  name: "app",
   data() {
     return {
-      issPosition: "",
+      issPosition: {
+        longitude: 0,
+        latitude: 0,
+      },
       issUnixTimeStamp: null,
       issTimeStamp: null,
       issDate: null,
     };
   },
   mounted() {
+    this.fetchData();
     setInterval(() => {
+      this.fetchData();
+    }, 1000);
+  },
+  methods: {
+    fetchData: function () {
       fetch("http://api.open-notify.org/iss-now.json")
         .then((res) => res.json())
         .then((json) => {
@@ -25,9 +51,7 @@ export default {
             (this.issUnixTimeStamp = json.timestamp),
             this.convertUnixTimeStamp();
         });
-    }, 3000);
-  },
-  methods: {
+    },
     convertUnixTimeStamp: function () {
       const unixTime = this.issUnixTimeStamp;
       const months_arr = [
@@ -59,6 +83,9 @@ export default {
     },
   },
   computed: {},
+  components: {
+    "track-iss-map": TrackISSMap,
+  },
 };
 </script>
 
@@ -67,5 +94,15 @@ main {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   text-align: center;
+  margin: 0;
+}
+
+#iss-info {
+  position: absolute;
+  background-color: white;
+  top: 0;
+  left: 0;
+  padding: 20px 30px;
+  z-index: 100;
 }
 </style>
